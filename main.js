@@ -8,14 +8,14 @@
 // You can run this on your computer with Node.js or use an online JavaScript
 // environment that allows HTTP requests, e.g. https://runjs.co/
 
-// A callback-style function to make an HTTP GET request.
+// A non-blocking, callback-style function to make an HTTP GET request.
 // When the request is complete, 'callback' will be called with
 // the response body text.  For simplicity, we're ignoring errors.
 //
 // Example usage:
 //     httpGet('https://example.org/', responseBody => {
 //         console.log(`Got first page: ${JSON.stringify(responseBody)}`);
-//     
+//
 //         const targetUrl = extractFirstLink(responseBody);
 //         if (targetUrl !== null) {
 //             httpGet(targetUrl, responseBody => {
@@ -27,7 +27,7 @@ function httpGet(url, callback) {
     log(`GET ${JSON.stringify(url)}...`);
     // The 'fetch' API uses promises, but that's just an internal implementation detail of
     // 'httpGet'. In this exercise, you should do everything with callbacks, not promises.
-    // of the exercise is to use callbacks everywhere else.
+    // The point of the exercise is to use callbacks everywhere else.
     fetch(url)
         .then(res => { res.text().then(callback); })
         .catch(err => { throw err; });
