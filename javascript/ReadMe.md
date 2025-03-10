@@ -1,4 +1,4 @@
-# javascript-callback-warmup
+# callback-io-warmup/javascript
 
 Start here: [main.js](main.js)
 
