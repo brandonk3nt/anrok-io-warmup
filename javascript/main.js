@@ -1,8 +1,8 @@
 // 1. 'httpGet' is provided for you.
 // 2. You have to implement 'httpGetParallel' and 'httpGetSerial'
-//    using 'httpGet'.  See signatures below.
+//    using 'httpGet'. See signatures below.
 // 3. 'testAsync' will try running your 'httpGetParallel' and
-//    'httpGetSerial' with some test URLs.  The expected output
+//    'httpGetSerial' with some test URLs. The expected output
 //    is shown at the very bottom of this file.
 //
 // You can run this on your computer with Node.js or use an online JavaScript
@@ -10,45 +10,51 @@
 
 // A non-blocking, callback-style function to make an HTTP GET request.
 // When the request is complete, 'callback' will be called with
-// the response body text.  For simplicity, we're ignoring errors.
+// the response body text. For simplicity, we're ignoring errors.
 //
 // Example usage:
-//     httpGet('https://example.org/', responseBody => {
-//         console.log(`Got first page: ${JSON.stringify(responseBody)}`);
+//     httpGet('https://example.org/', r => {
+//         console.log(`Got first page: ${JSON.stringify(r)}`);
 //
-//         const targetUrl = extractFirstLink(responseBody);
+//         const targetUrl = extractFirstLink(r);
 //         if (targetUrl !== null) {
-//             httpGet(targetUrl, responseBody => {
-//                 console.log(`Got second page: ${JSON.stringify(responseBody)}`);
+//             httpGet(targetUrl, r => {
+//                 console.log(`Got second page: ${JSON.stringify(r)}`);
 //             });
 //         }
 //     });
 function httpGet(url, callback) {
-    log(`GET ${JSON.stringify(url)}...`);
+    log(`HTTP start ${JSON.stringify(url)}`);
     // The 'fetch' API uses promises, but that's just an internal implementation detail of
     // 'httpGet'. In this exercise, you should do everything with callbacks, not promises.
     // The point of the exercise is to use callbacks everywhere else.
     fetch(url)
-        .then(res => { res.text().then(callback); })
+        .then(res => {
+            res.text().then(r => {
+                const truncated = r.substring(0, 20);
+                log(`HTTP finish ${JSON.stringify(url)} -> ${JSON.stringify(truncated)}`);
+                callback(truncated)
+            });
+        })
         .catch(err => { throw err; });
 }
 
 // This function should initiate parallel HTTP GET requests for all URLs in
-// the 'urls' array.  After all requests are complete, call 'callback' with
+// the 'urls' array. After all requests are complete, call 'callback' with
 // an array of response bodies, matching the order of the `urls` array.
 function httpGetParallel(urls, callback) {
     // You have to write this code.
     // You can use 'httpGet', but don't use promises.
-    throw new Error('unimplemented');
+    throw new Error('todo');
 }
 
 // This function should make HTTP GET requests for the URLs in the 'urls'
-// array one at a time.  After the last request is complete, call 'callback'
+// array one at a time. After the last request is complete, call 'callback'
 // with an array of response bodies, matching the order of the `urls` array.
 function httpGetSerial(urls, callback) {
     // You have to write this code.
     // You can use 'httpGet', but don't use promises.
-    throw new Error('unimplemented');
+    throw new Error('todo');
 }
 
 function log(message) {
@@ -59,7 +65,7 @@ function log(message) {
 }
 
 async function testAsync() {
-    // httpbin.org provides several convenient test endpoints.  We're using
+    // httpbin.org provides several convenient test endpoints. We're using
     // httpbin.org/delay/N, which just waits N seconds before responding.
     const urls = [
         'https://httpbin.org/delay/1',
@@ -67,20 +73,18 @@ async function testAsync() {
         'https://httpbin.org/delay/1',
     ];
 
-    log('Trying httpGetParallel...');
+    log('Testing httpGetParallel...');
     await new Promise(resolve => {
-        httpGetParallel(urls, responseBodies => {
-            const truncated = responseBodies.map(s => s.substring(0, 20));
-            log(`Got responses: ${JSON.stringify(truncated, null, 4)}`);
+        httpGetParallel(urls, responses => {
+            log(`Got responses: ${JSON.stringify(responses, null, 4)}`);
             resolve();
         });
     });
 
-    log('Trying httpGetSerial...');
+    log('Testing httpGetSerial...');
     await new Promise(resolve => {
-        httpGetSerial(urls, responseBodies => {
-            const truncated = responseBodies.map(s => s.substring(0, 20));
-            log(`Got responses: ${JSON.stringify(truncated, null, 4)}`);
+        httpGetSerial(urls, responses => {
+            log(`Got responses: ${JSON.stringify(responses, null, 4)}`);
             resolve();
         });
     });
@@ -91,20 +95,26 @@ testAsync().catch(console.error);
 /*
 Expected output:
 
-    [20:07:12.4] Trying httpGetParallel...
-    [20:07:12.4] GET "https://httpbin.org/delay/1"...
-    [20:07:12.4] GET "https://httpbin.org/delay/2"...
-    [20:07:12.4] GET "https://httpbin.org/delay/1"...
-    [20:07:14.8] Got responses: [
+    [23:32:16.5] Testing httpGetParallel...
+    [23:32:16.5] HTTP start "https://httpbin.org/delay/1"
+    [23:32:16.5] HTTP start "https://httpbin.org/delay/2"
+    [23:32:16.5] HTTP start "https://httpbin.org/delay/1"
+    [23:32:17.9] HTTP finish "https://httpbin.org/delay/1" -> "{\n  \"args\": {}, \n  \""
+    [23:32:18.2] HTTP finish "https://httpbin.org/delay/1" -> "{\n  \"args\": {}, \n  \""
+    [23:32:19.5] HTTP finish "https://httpbin.org/delay/2" -> "{\n  \"args\": {}, \n  \""
+    [23:32:19.5] Got responses: [
         "{\n  \"args\": {}, \n  \"",
         "{\n  \"args\": {}, \n  \"",
         "{\n  \"args\": {}, \n  \""
     ]
-    [20:07:14.8] Trying httpGetSerial...
-    [20:07:14.8] GET "https://httpbin.org/delay/1"...
-    [20:07:15.9] GET "https://httpbin.org/delay/2"...
-    [20:07:18.0] GET "https://httpbin.org/delay/1"...
-    [20:07:19.1] Got responses: [
+    [23:32:19.5] Testing httpGetSerial...
+    [23:32:19.5] HTTP start "https://httpbin.org/delay/1"
+    [23:32:20.6] HTTP finish "https://httpbin.org/delay/1" -> "{\n  \"args\": {}, \n  \""
+    [23:32:20.6] HTTP start "https://httpbin.org/delay/2"
+    [23:32:22.7] HTTP finish "https://httpbin.org/delay/2" -> "{\n  \"args\": {}, \n  \""
+    [23:32:22.7] HTTP start "https://httpbin.org/delay/1"
+    [23:32:23.8] HTTP finish "https://httpbin.org/delay/1" -> "{\n  \"args\": {}, \n  \""
+    [23:32:23.8] Got responses: [
         "{\n  \"args\": {}, \n  \"",
         "{\n  \"args\": {}, \n  \"",
         "{\n  \"args\": {}, \n  \""
